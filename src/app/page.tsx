@@ -1,101 +1,118 @@
-import Image from "next/image";
+"use client";
+import { useState, useEffect } from "react";
+import { Input } from "@/components/ui/input";
+import { Separator } from "@/components/ui/separator";
+
+import { getCountries } from "@/helper/getCountries";
+import { getJumbledCountries } from "@/helper/getJumbledCountries";
+import { createAudioFileFromText } from "@/helper/getAudioScript";
+
+import { Player } from "@remotion/player";
+
+import { Button } from "@/components/ui/button";
+import { MyComposition } from "@/remotion/Composition";
+import { fetchBackground } from "@/helper/fetchBackground";
 
 export default function Home() {
-  return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-8 row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-semibold">
-              src/app/page.tsx
-            </code>
-            .
-          </li>
-          <li>Save and see your changes instantly.</li>
-        </ol>
+  const [color, setColor] = useState("#fff");
+  const [openColorPicker, setOpenColorPicker] = useState(false);
+  const [quizTitle, setQuizTitle] = useState("");
+  const [countries, setCountries] = useState<string[]>([]);
+  const [jumbledCountries, setJumbledCountries] = useState<string[]>([]);
+  const [audioFile, setAudioFile] = useState<string>("");
+  const [backgoundImage , setBackgoundImage] = useState<string>("");
+  interface QuizData {
+    [key: string]: string | string[];
+    title: string;
+    countries: string[];
+    jumbledCountries: string[];
+    audioFile: string;
+  }
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:min-w-44"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
+  const [quizData, setQuizData] = useState<QuizData | null>(null);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      const countries = getCountries();
+      setCountries(countries);
+      const jumbledCountries = getJumbledCountries(countries);
+      setJumbledCountries(jumbledCountries);
+
+      const backgoundImageBac = await fetchBackground();
+      setBackgoundImage(backgoundImageBac);
+
+      const script = `
+    First one. <break time="3.0s"/> ${countries[0]}
+    Second one. <break time="3.0s"/> ${countries[1]}
+    Third one. <break time="3.0s"/> ${countries[2]}
+    Fourth one. <break time="3.0s"/> ${countries[3]}
+    Fifth one. <break time="3.0s"/> ${countries[4]}
+    Sixth one. <break time="3.0s"/> ${countries[5]}
+    Seventh one. <break time="3.0s"/> ${countries[6]}
+    Eighth one. <break time="3.0s"/> ${countries[7]}
+    Ninth one. <break time="3.0s"/> ${countries[8]}
+    Tenth one. <break time="3.0s"/> ${countries[9]}
+  `;
+
+      const audioFile = await createAudioFileFromText(script);
+      setAudioFile(audioFile);
+    };
+
+    fetchData();
+  }, []);
+
+
+  const onQuizMakerSubmit = async () => {
+    const quizData = {
+      title: quizTitle,
+      countries,
+      jumbledCountries,
+      audioFile,
+      backgoundImage,
+    };
+    setQuizData(quizData);
+  }
+
+  return (
+    <main className={"max-w-7xl w-full h-screen mx-auto py-4"}>
+      <h1 className="text-2xl text-center font-bold">Country Quiz Maker</h1>
+      <Separator />
+      <div className="flex flex-col gap-5 max-w-3xl mx-auto my-4">
+        <Input
+          name="quizTitle"
+          id="quizTitleInput"
+          className={"border border-black max-w-sm"}
+          placeholder="Quiz Title"
+          value={quizTitle}
+          onChange={(e) => setQuizTitle(e.target.value)}
+        />
+        <Input
+          name="quizBackground"
+          id="quizBackgroundInput"
+          className={"border border-black max-w-sm"}
+          placeholder="Quiz Background"
+          type={"file"}
+        />
+        {/* <ColorPicker color={color} onChange={(color) => setColor(color.hex)} /> */}
+        <Button  className="bg-black text-white"  onClick={onQuizMakerSubmit}>
+          Create Quiz  
+         </Button>
+      </div> {quizData && (
+        <div className="mt-10">
+          <Player
+            component={MyComposition}
+            compositionWidth={1080}
+            compositionHeight={1920}
+            durationInFrames={300}
+            fps={30}
+            inputProps={quizData}
+          />
         </div>
-      </main>
-      <footer className="row-start-3 flex gap-6 flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
-    </div>
+      )}
+
+
+
+    
+    </main>
   );
 }

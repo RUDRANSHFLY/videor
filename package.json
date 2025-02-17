@@ -9,15 +9,30 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@11labs/client": "^0.0.7",
+    "@11labs/react": "^0.0.7",
+    "@fal-ai/client": "^1.2.3",
+    "@radix-ui/react-separator": "^1.1.2",
+    "@radix-ui/react-slot": "^1.1.2",
+    "@remotion/cli": "4.0.265",
+    "@remotion/eslint-plugin": "4.0.265",
+    "@remotion/player": "4.0.265",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "countries-ts": "^1.0.3",
+    "dotenv": "^16.4.7",
+    "elevenlabs": "^1.51.0",
+    "font-picker": "^3.5.1",
     "lucide-react": "^0.475.0",
     "next": "15.1.7",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
+    "react-pick-color": "^2.0.0",
+    "remotion": "4.0.265",
     "tailwind-merge": "^3.0.1",
-    "tailwindcss-animate": "^1.0.7"
+    "tailwindcss-animate": "^1.0.7",
+    "uuid": "^11.0.5",
+    "zod": "^3.24.2"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",
